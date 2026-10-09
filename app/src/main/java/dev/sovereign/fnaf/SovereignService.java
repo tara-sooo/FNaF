@@ -102,6 +102,53 @@ public final class SovereignService extends AccessibilityService {
         }
     }
 
+    /**
+     * Called by the frame-stream detector when 12 AM first becomes visible.
+     * The supplied monotonic timestamp becomes the absolute schedule epoch.
+     * No human volume-key timing is involved.
+     */
+    public void runSynchronizedWave(long epochNs) {
+        handler.post(() -> {
+            SharedPreferences prefs=getSharedPreferences(PREFS, MODE_PRIVATE);
+            if(!prefs.getBoolean("ARMED",false)) {
+                logStatus("12 AM検出済み。ただし実行許可がOFF");
+                return;
+            }
+            long nowNs=SystemClock.elapsedRealtimeNanos();
+            long passedMs=Math.max(0,(nowNs-epochNs)/1000000L);
+            if(passedMs>=900) {
+                logStatus("12 AM同期が遅すぎます: "+passedMs+"ms。誤ったタイミングで実行しないため中止");
+                return;
+            }
+            try {
+                List<FirstWavePlan.Step> steps=FirstWavePlan.buildSynchronized();
+                GestureDescription.Builder builder=new GestureDescription.Builder();
+                for(FirstWavePlan.Step step:steps) {
+                    long when=step.atMs-passedMs;
+                    if(when<0)throw new IllegalStateException("操作期限を超過: "+step.description);
+                    Point pt=TouchConfig.devicePoint(this,prefs,step.key);
+                    Path p=new Path();p.moveTo(pt.x,pt.y);
+                    builder.addStroke(new GestureDescription.StrokeDescription(
+                            p,when,step.durationMs,false));
+                }
+                logStatus("12 AM同期から"+passedMs+"msで9操作を登録。ゲーム開始を基準に実行");
+                dispatchChecked(builder.build(),"ゲーム時計同期・最初の9操作");
+            } catch(Exception err) {
+                logStatus("同期操作に失敗: "+err.getClass().getSimpleName()+": "+err.getMessage());
+            }
+        });
+    }
+
+    public void recordHourAnchor(int hour,long observedAt,long driftMs) {
+        handler.post(() -> {
+            getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+                    .putInt("CLOCK_HOUR",hour)
+                    .putLong("CLOCK_HOUR_AT_NS",observedAt)
+                    .putLong("CLOCK_DRIFT_MS",driftMs).apply();
+            logStatus(hour+" AM 時計変化を観測: 最初の12 AM基準とのずれ "+driftMs+"ms");
+        });
+    }
+
     private void runSingleTap() {
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         try {
