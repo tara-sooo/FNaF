@@ -48,6 +48,22 @@ public final class FirstWavePlan {
         return Collections.unmodifiableList(x);
     }
 
+    /** When sync is received after the first rendered clock frame, the first
+     * camera selection is intentionally deferred; the Foxy 5.01s gate remains
+     * handled at its original absolute (game-time) position.
+     */
+    public static List<Step> buildSynchronized() {
+        List<Step> steps=new ArrayList<>();
+        steps.add(new Step(1150,34,Key.MONITOR,"CAM UP after 12 AM sync"));
+        steps.add(new Step(1690,34,Key.CAMERA4B,"Select CAM4B after sync"));
+        steps.add(new Step(2140,34,Key.MONITOR,"CAM DOWN after CAM4B selection"));
+        for(Step original:build()) {
+            if(original.atMs>=3450)steps.add(original);
+        }
+        validate(steps);
+        return Collections.unmodifiableList(steps);
+    }
+
     public static void validate(List<Step> steps) {
         long lastEnd = -1;
         long lastBegin = -1;
