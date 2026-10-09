@@ -24,5 +24,12 @@
         <service android:name=".ClockSyncCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+        <receiver android:name=".GameFrameBridgeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="dev.sovereign.fnaf.INTERNAL_MAIN_ROOM_START"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
