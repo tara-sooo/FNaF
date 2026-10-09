@@ -1,0 +1,65 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="dev.sovereign.fnaf"
+4    android:versionCode="1"
+5    android:versionName="0.1-first-wave" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="32" />
+10
+11    <application
+11-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:3:5-22:19
+12        android:allowBackup="false"
+12-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:3:18-45
+13        android:debuggable="true"
+14        android:extractNativeLibs="false"
+15        android:label="Sovereign First Wave"
+15-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:4:9-45
+16        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+16-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:5:9-72
+17        android:usesCleartextTraffic="false" >
+17-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:6:9-45
+18        <activity
+18-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:7:9-12:20
+19            android:name="dev.sovereign.fnaf.MainActivity"
+19-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:7:19-47
+20            android:exported="true" >
+20-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:7:48-71
+21            <intent-filter>
+21-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:8:13-11:29
+22                <action android:name="android.intent.action.MAIN" />
+22-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:9:17-68
+22-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:9:25-66
+23
+24                <category android:name="android.intent.category.LAUNCHER" />
+24-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:10:17-76
+24-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:10:27-74
+25            </intent-filter>
+26        </activity>
+27
+28        <service
+28-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:13:9-21:19
+29            android:name="dev.sovereign.fnaf.SovereignService"
+29-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:13:18-50
+30            android:exported="true"
+30-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:15:13-36
+31            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+31-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:14:13-79
+32            <intent-filter>
+32-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:16:13-18:29
+33                <action android:name="android.accessibilityservice.AccessibilityService" />
+33-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:17:17-91
+33-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:17:25-89
+34            </intent-filter>
+35
+36            <meta-data
+36-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:19:13-20:66
+37                android:name="android.accessibilityservice"
+37-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:19:24-67
+38                android:resource="@xml/sovereign_accessibility" />
+38-->/home/runner/work/FNaF/FNaF/app/src/main/AndroidManifest.xml:20:17-64
+39        </service>
+40    </application>
+41
+42</manifest>

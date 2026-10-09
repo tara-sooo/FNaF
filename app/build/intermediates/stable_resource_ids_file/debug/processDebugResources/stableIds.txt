@@ -1,0 +1,2 @@
+dev.sovereign.fnaf:xml/sovereign_accessibility = 0x7f020000
+dev.sovereign.fnaf:string/accessibility_summary = 0x7f010000

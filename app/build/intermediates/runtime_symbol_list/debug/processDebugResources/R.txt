@@ -1,0 +1,2 @@
+int string accessibility_summary 0x7f010000
+int xml sovereign_accessibility 0x7f020000
