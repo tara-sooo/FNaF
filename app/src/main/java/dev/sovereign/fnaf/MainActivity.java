@@ -63,9 +63,11 @@ public final class MainActivity extends Activity {
         Button refresh=button(content,"動作状態を更新");
         refresh.setOnClickListener(v->refreshStatus());
         history=addText(content,"",12);
+        addText(content,"【v0.4：ゲーム内部イベント直接同期】",17);
+        addText(content,"この版は、ゲームの Main Room（内部フレーム5）開始通知を受信すると、その通知に含まれる基準時刻から最初の9操作を起動します。サービス接続＋実行を許可ONで待機します。※ 受信するには、engine-bridgeで計測コードを入れたゲーム本体が必要です。元のゲームAPKは通知しません。",13);
         addText(content,"【ゲーム内部時間への画面同期】",17);
         addText(content,"Custom Nightの開始画面で『12 AMを検出して同期開始』を押し、Androidの画面共有を許可してください。そのあとFNaFに戻り、Night 7を開始します。右上の12 AM時計が現れたフレームから時刻表を実行します。",13);
-        Button sync=button(content,"⑤ 12 AMの出現を検出して自動開始（画面共有）");
+        Button sync=button(content,"⑤ 旧方式：12 AM画面検出（非推奨）");
         sync.setOnClickListener(v->requestClockSync());
         Button stopSync=button(content,"画面時計の監視を停止");
         stopSync.setOnClickListener(v->{
