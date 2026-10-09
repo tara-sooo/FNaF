@@ -7,8 +7,8 @@ android {
         applicationId 'dev.sovereign.fnaf'
         minSdk 26
         targetSdk 32
-        versionCode 2
-        versionName '0.2-trigger-debug'
+        versionCode 3
+        versionName '0.3-clock-sync-test'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
