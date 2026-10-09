@@ -1,6 +1,9 @@
 package dev.sovereign.fnaf;
 
 import android.app.Activity;
+import android.content.Context;
+import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -18,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class MainActivity extends Activity {
+    private static final int REQ_SCREEN_CAPTURE=2035;
     private final Map<String,EditText> fields=new LinkedHashMap<>();
     private SharedPreferences prefs;
     private TextView status;
@@ -59,6 +63,16 @@ public final class MainActivity extends Activity {
         Button refresh=button(content,"動作状態を更新");
         refresh.setOnClickListener(v->refreshStatus());
         history=addText(content,"",12);
+        addText(content,"【ゲーム内部時間への画面同期】",17);
+        addText(content,"Custom Nightの開始画面で『12 AMを検出して同期開始』を押し、Androidの画面共有を許可してください。そのあとFNaFに戻り、Night 7を開始します。右上の12 AM時計が現れたフレームから時刻表を実行します。",13);
+        Button sync=button(content,"⑤ 12 AMの出現を検出して自動開始（画面共有）");
+        sync.setOnClickListener(v->requestClockSync());
+        Button stopSync=button(content,"画面時計の監視を停止");
+        stopSync.setOnClickListener(v->{
+            ClockSyncCaptureService.stop(this);
+            status.setText("画面時計監視の停止を要求しました");
+        });
+        addText(content,"※ 初回は時計出現の画像検出を検証する版です。時計の出現がゲーム内部0秒と完全一致するかは、この検証で確認します。時刻変化時のずれはログに残ります。",12);
         addText(content,"【操作位置】1280×720のゲーム内座標（変更可能）",17);
         for (int i=0;i<TouchConfig.NAMES.length;i++) {
             String n=TouchConfig.NAMES[i];
@@ -105,6 +119,39 @@ public final class MainActivity extends Activity {
         }
         editor.apply();status.setText("設定を保存しました");
     }
+    private void requestClockSync() {
+        if(SovereignService.connected()==null) {
+            status.setText("時刻同期不可：まずアクセシビリティサービスを有効にしてください");
+            return;
+        }
+        if(!prefs.getBoolean("ARMED",false)) {
+            status.setText("時刻同期不可：『実行を許可』にチェックしてください");
+            return;
+        }
+        MediaProjectionManager mgr=(MediaProjectionManager)getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        startActivityForResult(mgr.createScreenCaptureIntent(),REQ_SCREEN_CAPTURE);
+    }
+
+    @Override @SuppressWarnings("deprecation")
+    protected void onActivityResult(int requestCode,int resultCode,Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode!=REQ_SCREEN_CAPTURE)return;
+        if(resultCode!=RESULT_OK || data==null) {
+            status.setText("画面共有を許可しなかったため、時刻同期は開始していません");
+            return;
+        }
+        Intent service=new Intent(this,ClockSyncCaptureService.class);
+        service.putExtra(ClockSyncCaptureService.EXTRA_RESULT_CODE,resultCode);
+        service.putExtra(ClockSyncCaptureService.EXTRA_RESULT_DATA,data);
+        try {
+            if(Build.VERSION.SDK_INT>=26)startForegroundService(service);
+            else startService(service);
+            status.setText("画面時計監視を準備中。FNaFの開始画面へ戻り、夜を開始してください");
+        } catch(Exception ex) {
+            status.setText("画面時計監視開始失敗: "+ex.getClass().getSimpleName()+" "+ex.getMessage());
+        }
+    }
+
     private void startDelayed(boolean singleTap) {
         SovereignService svc=SovereignService.connected();
         if(svc==null) {
