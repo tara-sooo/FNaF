@@ -21,6 +21,7 @@ public final class MainActivity extends Activity {
     private final Map<String,EditText> fields=new LinkedHashMap<>();
     private SharedPreferences prefs;
     private TextView status;
+    private TextView history;
     private CheckBox armed;
 
     @Override public void onCreate(Bundle state) {
@@ -47,11 +48,17 @@ public final class MainActivity extends Activity {
         armed.setChecked(prefs.getBoolean("ARMED",false));
         armed.setOnCheckedChangeListener((b,checked)->prefs.edit().putBoolean("ARMED",checked).apply());
         content.addView(armed);
-        addText(content,"③ ゲーム画面へ移動して、開始時点で音量＋を押す。音量−で中断。\n"
+        addText(content,"【音量キーが反応しなくても試せる起動方法】アプリでボタンを押し、5秒以内にゲーム画面へ切り替える。",14);
+        Button testTap=button(content,"③ 5秒後にモニターを1回タップ（最初にこちら）");
+        testTap.setOnClickListener(v->startDelayed(true));
+        Button testWave=button(content,"④ 5秒後に最初の9操作を開始");
+        testWave.setOnClickListener(v->startDelayed(false));
+        addText(content,"別の方法：ゲーム画面へ移動して音量＋で直接開始。音量−で中断。\n"
                 +"※ 音量＋を押した瞬間が時刻0です。ゲーム内部の開始時刻と一致させる機能はまだありません。",13);
         status=addText(content,"",13);
         Button refresh=button(content,"動作状態を更新");
         refresh.setOnClickListener(v->refreshStatus());
+        history=addText(content,"",12);
         addText(content,"【操作位置】1280×720のゲーム内座標（変更可能）",17);
         for (int i=0;i<TouchConfig.NAMES.length;i++) {
             String n=TouchConfig.NAMES[i];
@@ -98,7 +105,29 @@ public final class MainActivity extends Activity {
         }
         editor.apply();status.setText("設定を保存しました");
     }
+    private void startDelayed(boolean singleTap) {
+        SovereignService svc=SovereignService.connected();
+        if(svc==null) {
+            status.setText("サービス未接続：Android設定でSovereign First Waveのアクセシビリティを有効にしてください。");
+            return;
+        }
+        if(!prefs.getBoolean("ARMED",false)) {
+            status.setText("実行許可がOFF：上のチェックをONにしてください。");
+            return;
+        }
+        svc.scheduleDelayed(singleTap,5000);
+        refreshStatus();
+    }
+    @Override protected void onResume() {
+        super.onResume();
+        if(status!=null) refreshStatus();
+    }
     private void refreshStatus() {
-        status.setText("STATUS: "+prefs.getString("STATUS","サービス未接続または未実行"));
+        boolean connected=SovereignService.connected()!=null;
+        status.setText("サービス: "+(connected?"接続済み":"未接続（設定で有効化してください）")+
+                "\\n実行許可: "+(prefs.getBoolean("ARMED",false)?"ON":"OFF")+
+                "\\n直近: "+prefs.getString("STATUS","履歴なし"));
+        if(history!=null)history.setText("【動作ログ・最新順】\\n"+
+                prefs.getString("HISTORY","ログなし"));
     }
 }
